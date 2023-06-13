@@ -14,7 +14,17 @@ let getUserInventory = (id) => new Promise((resolve,reject)=>{ // the ID is the 
     });
 });
 
+let updateSkinOwner = (sellerWeaponID, buyerID) => new Promise((resolve,reject)=>{
+    db.query(`UPDATE CCL_inventory SET userID = ${buyerID} WHERE userWeaponID = ${sellerWeaponID};`, function (err, inventory, fields){
+        if(err){
+            reject(err);
+        }
+        resolve(); // don't need to return anything, because only metadata would be returned
+    });
+});
+
 
 module.exports= {
-    getUserInventory
+    getUserInventory,
+    updateSkinOwner
 }

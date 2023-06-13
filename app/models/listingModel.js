@@ -27,7 +27,7 @@ let getListingByTeam = (Team) => new Promise(async (resolve,reject)=>{
 });
 let addListing = (listingData) => new Promise( async (resolve,reject)=> {
 
-    let sql = "INSERT INTO CCL_listings (sellerID, sellerWeaponID, price) VALUES (" +
+    let sql = "INSERT INTO CCL_listings (sellerID, sellerWeaponID, price) VALUES (" + // TODO: get the specific sellerWeaponID from the inventory table when clicking on an item in the inventory
         db.escape(listingData.team) + ",  " +
         db.escape(listingData.price)+ ",  "  +
         db.escape(listingData.weaponID)+ ")" ;
@@ -42,8 +42,23 @@ let addListing = (listingData) => new Promise( async (resolve,reject)=> {
 
 });
 
+let deleteListingById = (id) => new Promise( async (resolve,reject)=> {
+
+        let sql = "DELETE FROM CCL_listings WHERE id = " + db.escape(id);
+        console.log(sql);
+
+        db.query(sql, function (err, result, fields){
+            if(err) {
+                reject(err)
+            }
+            resolve() // I don't think we need to return anything here
+        });
+
+});
+
 module.exports = {
     getAllListings,
     getListingByTeam,
     addListing,
+    deleteListingById,
 }

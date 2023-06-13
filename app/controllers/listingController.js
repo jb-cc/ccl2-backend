@@ -22,6 +22,7 @@ function getCTListings(req,res,next){
         })
 }
 
+
 function getTListings(req,res,next){
     listingModel.getListingByTeam(T)
         .then((listing)=>{
@@ -45,8 +46,12 @@ function addListing(req,res,next){
 }
 
 
+
+
+
 module.exports = {
     getAllListings,
     getCTListings,
     getTListings,
+    addListing,
 }
