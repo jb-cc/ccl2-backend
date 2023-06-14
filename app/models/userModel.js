@@ -52,6 +52,7 @@ let updateUser = (userData) => new Promise( async (resolve,reject)=> {
 });
 
 let addUser = (userData) => new Promise( async (resolve,reject)=> {
+    console.log(userData.username, userData.email, userData.password);
     userData.password = await bcrypt.hash(userData.password, 10);
     let sql = "INSERT INTO CCL_users (username, email, password) VALUES (" +
         db.escape(userData.username) + ",  " +
@@ -61,7 +62,9 @@ let addUser = (userData) => new Promise( async (resolve,reject)=> {
     console.log('sql command sent: '+sql);
     db.query(sql, function (err, result, fields){
         if(err) {
+            console.log(err)
             reject(err)
+            return
         }
         userData.id = result.insertId;
         console.log('result.insertId: '+result.insertId);

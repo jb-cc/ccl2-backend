@@ -71,6 +71,7 @@ function register(req,res,next) {
 }
 
 function registerNewUser(req,res,next) {
+    console.log('BODY: ' + JSON.stringify(req.body, null, 2));
     userModel.addUser(req.body)
         .then((user) => {
             res.json(user); // this was: res.redirect("/users");

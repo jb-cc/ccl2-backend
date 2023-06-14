@@ -2,11 +2,11 @@ const db = require('../config/database').config;
 
 let getAllListings = () => new Promise(async (resolve,reject)=>{
     let sql = `SELECT * FROM CCL_listings`;
-    db.query(sql, function (err, listing, fields){
+    db.query(sql, function (err, listings, fields){
         if(err){
             reject(err);
         }
-        resolve(listing[0]);
+        resolve(listings);
     });
 });
 

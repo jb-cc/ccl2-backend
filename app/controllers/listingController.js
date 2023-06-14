@@ -1,6 +1,7 @@
 const listingModel = require('../models/listingModel');
 
 function getAllListings(req,res,next){
+    console.log('getting all listings')
     listingModel.getAllListings()
         .then((listings)=>{
             res.json(listings);
@@ -12,7 +13,7 @@ function getAllListings(req,res,next){
 }
 
 function getCTListings(req,res,next){
-    listingModel.getListingByTeam(CT)
+    listingModel.getListingByTeam('CT')
         .then((listing)=>{
             res.json(listing);
         })
@@ -24,7 +25,7 @@ function getCTListings(req,res,next){
 
 
 function getTListings(req,res,next){
-    listingModel.getListingByTeam(T)
+    listingModel.getListingByTeam('T')
         .then((listing)=>{
             res.json(listing);
         })

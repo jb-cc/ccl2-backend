@@ -1,4 +1,4 @@
-const marketModel = require('../models/marketModel');
+const tradeModel = require('../models/tradeModel');
 const listingModel = require('../models/listingModel');
 const inventoryModel = require('../models/inventoryModel');
 
