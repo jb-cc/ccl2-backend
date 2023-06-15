@@ -7,6 +7,7 @@ let getAllListings = () =>
       if (err) {
         reject(err);
       }
+      console.log(sql)
       resolve(listings);
     });
   });
@@ -27,6 +28,7 @@ let getListingByTeam = (Team) =>
       resolve(listing);
     });
   });
+
 let addListing = (listingData) =>
   new Promise(async (resolve, reject) => {
     let sql =
@@ -47,6 +49,21 @@ let addListing = (listingData) =>
     });
   });
 
+let getListingById = (sellerWeaponID) =>
+  new Promise(async (resolve, reject) => {
+    let sql =
+      "SELECT * FROM CCL_listings INNER JOIN CCL_inventory ON CCL_listings.sellerWeaponID = CCL_inventory.userWeaponID INNER JOIN CCL_weapons ON CCL_inventory.weaponID = CCL_weapons.id WHERE CCL_listings.sellerWeaponID = " +
+      db.escape(sellerWeaponID);
+    console.log(sql);
+
+    db.query(sql, function (err, listing, fields) {
+      if (err) {
+        reject(err);
+      }
+      resolve(listing);
+    });
+  });
+
 let deleteListingById = (id) =>
   new Promise(async (resolve, reject) => {
     let sql = "DELETE FROM CCL_listings WHERE id = " + db.escape(id);
@@ -64,5 +81,6 @@ module.exports = {
   getAllListings,
   getListingByTeam,
   addListing,
+  getListingById,
   deleteListingById,
 };
