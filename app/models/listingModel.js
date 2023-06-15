@@ -2,7 +2,7 @@ const db = require("../config/database").config;
 
 let getAllListings = () =>
   new Promise(async (resolve, reject) => {
-    let sql = `SELECT * FROM CCL_listings`;
+    let sql = `SELECT * FROM CCL_listings INNER JOIN CCL_inventory ON CCL_listings.sellerWeaponID = CCL_inventory.userWeaponID INNER JOIN CCL_weapons ON CCL_inventory.weaponID = CCL_weapons.id`;
     db.query(sql, function (err, listings, fields) {
       if (err) {
         reject(err);

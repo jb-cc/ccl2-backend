@@ -4,6 +4,7 @@ function getAllListings(req,res,next){
     console.log('getting all listings')
     listingModel.getAllListings()
         .then((listings)=>{
+            console.log(listings);
             res.json(listings);
         })
         .catch((err)=>{
