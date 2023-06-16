@@ -95,6 +95,7 @@ function loginUser(req, res, next) {
 
             res.cookie('token', token, {
                 httpOnly: true,
+                // sameSite: 'none',
                 // include 'secure: true' as well if using https
             });
 
