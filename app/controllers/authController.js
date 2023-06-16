@@ -8,7 +8,12 @@ function login(req, res, next) {
   authModel.loginUser(req, res, next);
 }
 
+function logout(req, res, next) {
+  authModel.logout(req, res, next);
+}
+
 module.exports = {
   registerUser,
   login,
+  logout,
 };

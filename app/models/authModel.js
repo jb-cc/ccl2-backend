@@ -105,9 +105,14 @@ function loginUser(req, res, next) {
 }
 
 
+function logout(req, res, next) {
+    res.clearCookie('token');
+    res.status(200).json({ message: 'User logout successful' });
+}
 
 module.exports = {
     registerUser,
-    loginUser
+    loginUser,
+    logout
 
 }
