@@ -14,12 +14,12 @@ let getUsers = () => new Promise((resolve,reject)=>{
 });
 
 let getUser = (id) => new Promise((resolve,reject)=>{
-    console.log(id);
+    console.log('id: '+id);
     db.query(`SELECT * FROM CCL_users WHERE id=${id}`, function (err, users, fields){
         if(err){
             reject(err);
         }
-        console.log(users);
+        console.log(`user with id ${id}: `+JSON.stringify(users[0]));
         resolve(users[0]);
     });
 });

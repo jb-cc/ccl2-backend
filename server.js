@@ -41,6 +41,10 @@ app.use(expressJwt({
         '/',
         '/register',
         '/login',
+        '/listings',
+        { url: /^\/listings\/item\/.*/, methods: ['GET'] }, // regex for all paths that start with '/listings/item/'
+        '/listings/T',
+        // '/listings/CT',
         // Other paths...
     ]
 }));

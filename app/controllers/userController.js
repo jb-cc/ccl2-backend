@@ -12,10 +12,10 @@ function getUsers(req,res,next){
 }
 
 function getUser(req,res,next){
-    console.log(parseInt(req.params.id));
+    console.log('req.params.id: '+parseInt(req.params.id));
     userModel.getUser(parseInt(req.params.id))
         .then((user)=>{
-            console.log(typeof(user));
+            console.log('typeof user: '+typeof(user));
             res.json(user); // this was: res.render('user', {user});
         })
         .catch((err)=>{

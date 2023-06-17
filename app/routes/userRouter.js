@@ -2,7 +2,6 @@ const router = require("express").Router();
 
 const userController = require("../controllers/userController.js");
 
-// TODO: Add authentication middleware to all routes
 
 // Retrieve all Users
 router.get("/", userController.getUsers);
