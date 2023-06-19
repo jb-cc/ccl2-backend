@@ -7,7 +7,7 @@ let getAllListings = () =>
       if (err) {
         reject(err);
       }
-      console.log(sql)
+      console.log(sql);
       resolve(listings);
     });
   });
@@ -31,21 +31,34 @@ let getListingByTeam = (Team) =>
 
 let addListing = (listingData) =>
   new Promise(async (resolve, reject) => {
+    console.log("listingsData: " + listingData);
     let sql =
-      "INSERT INTO CCL_listings (sellerID, sellerWeaponID, price) VALUES (" + // TODO: get the specific sellerWeaponID from the inventory table when clicking on an item in the inventory
-      db.escape(listingData.team) +
+      "INSERT INTO CCL_listings (sellerID, sellerWeaponID, price) VALUES (" +
+      db.escape(listingData.sellerID) +
+      ",  " +
+      db.escape(listingData.sellerWeaponID) +
       ",  " +
       db.escape(listingData.price) +
-      ",  " +
-      db.escape(listingData.weaponID) +
       ")";
     console.log(sql);
 
     db.query(sql, function (err, result, fields) {
       if (err) {
-        reject(err);
+        return reject(err);
       }
-      resolve(listingData);
+
+      let sql2 =
+        "UPDATE CCL_inventory SET isListed = " +
+        1 +
+        " WHERE userWeaponID = " +
+        db.escape(listingData.sellerWeaponID);
+      console.log(sql2);
+      db.query(sql2, function (err, result, fields) {
+        if (err) {
+          return reject(err);
+        }
+        resolve(listingData);
+      });
     });
   });
 

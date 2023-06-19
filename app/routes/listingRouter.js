@@ -6,5 +6,6 @@ router.get("/", listingController.getAllListings);
 router.get("/CT", listingController.getCTListings);
 router.get("/T", listingController.getTListings);
 router.get("/item/:id", listingController.getListingByID);
+router.post("/add", listingController.addListing);
 
 module.exports = router;
