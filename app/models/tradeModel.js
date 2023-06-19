@@ -1,7 +1,7 @@
 const db = require('../config/database').config;
 
 
-function handleTransaction(req, res) {
+let BuyListedItem= (req, res) => {
     const buyerID = req.body.buyerID;
 
     db.beginTransaction(function (err) {
@@ -59,38 +59,47 @@ function handleTransaction(req, res) {
                             res.status(500).json({message: "Error occurred while transferring weapon ownership"});
                         });
                     }
-                    console.log('item transaction finished')
-                    // Delete the listing
-                    db.query('DELETE FROM CCL_listings WHERE sellerWeaponID = ?', [sellerWeaponID], (error) => {
+
+                    db.query('UPDATE CCL_inventory SET isListed = ? WHERE userWeaponID = ?', [0, sellerWeaponID], (error) => {
                         if (error) {
                             return db.rollback(function () {
-                                res.status(500).json({message: "Error occurred while deleting listing"});
+                                res.status(500).json({message: "Error occurred while setting isListed to 0"});
                             });
                         }
 
-                        // Update the buyer's and seller's money
-                        db.query('UPDATE CCL_users SET balance = balance - ? WHERE id = ?', [price, buyerID], (error) => {
+                        console.log('item transaction finished')
+                        // Delete the listing
+                        db.query('DELETE FROM CCL_listings WHERE sellerWeaponID = ?', [sellerWeaponID], (error) => {
                             if (error) {
                                 return db.rollback(function () {
-                                    res.status(500).json({message: "Error occurred while updating buyer's money"});
+                                    res.status(500).json({message: "Error occurred while deleting listing"});
                                 });
                             }
 
-                            db.query('UPDATE CCL_users SET balance = balance + ? WHERE id = ?', [price, sellerID], (error) => {
+                            // Update the buyer's and seller's money
+                            db.query('UPDATE CCL_users SET balance = balance - ? WHERE id = ?', [price, buyerID], (error) => {
                                 if (error) {
                                     return db.rollback(function () {
-                                        res.status(500).json({message: "Error occurred while updating seller's money"});
+                                        res.status(500).json({message: "Error occurred while updating buyer's money"});
                                     });
                                 }
 
-                                db.commit(function (err) {
-                                    if (err) {
+                                db.query('UPDATE CCL_users SET balance = balance + ? WHERE id = ?', [price, sellerID], (error) => {
+                                    if (error) {
                                         return db.rollback(function () {
-                                            res.status(500).json({message: "Error committing transaction"});
+                                            res.status(500).json({message: "Error occurred while updating seller's money"});
                                         });
                                     }
-                                    console.log('Transaction Complete.')
-                                    res.status(200).json({message: "Transaction successful"});
+
+                                    db.commit(function (err) {
+                                        if (err) {
+                                            return db.rollback(function () {
+                                                res.status(500).json({message: "Error committing transaction"});
+                                            });
+                                        }
+                                        console.log('Transaction Complete.')
+                                        res.status(200).json({message: "Transaction successful"});
+                                    });
                                 });
                             });
                         });
@@ -102,5 +111,5 @@ function handleTransaction(req, res) {
 }
 
 module.exports = {
-    handleTransaction,
+    BuyListedItem
 }
