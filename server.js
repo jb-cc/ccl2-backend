@@ -45,7 +45,7 @@ app.use(expressJwt({
         { url: /^\/listings\/item\/.*/, methods: ['GET'] }, // regex for all paths that start with '/listings/item/'
         '/listings/T',
         '/listings/CT',
-        // Other paths...
+        { url: /^\/inventory\/user\/.*/, methods: ['GET'] },
     ]
 }));
 
@@ -58,10 +58,12 @@ const PORT = process.env.PORT || 8080;
 const indexRouter = require('./app/routes/indexRouter.js');
 const userRouter = require('./app/routes/userRouter.js');
 const listingRouter = require('./app/routes/listingRouter.js');
+const inventoryRouter = require('./app/routes/inventoryRouter.js');
 
 app.use('/', indexRouter);
 app.use('/users', userRouter);
 app.use('/listings', listingRouter);
+app.use('/inventory', inventoryRouter);
 
 app.use((err, req, res, next) => {
     console.error(err.stack);
