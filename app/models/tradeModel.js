@@ -32,7 +32,7 @@ let BuyListedItem = (req, res) => {
         const listing = listingRows[0];
         const sellerWeaponID = listing.sellerWeaponID;
         const sellerID = listing.sellerID;
-          console.log('sellerID: ' + sellerID)
+        console.log("sellerID: " + sellerID);
         const price = listing.price;
 
         db.query(
@@ -69,12 +69,10 @@ let BuyListedItem = (req, res) => {
               (error) => {
                 if (error) {
                   return db.rollback(function () {
-                    res
-                      .status(500)
-                      .json({
-                        message:
-                          "Error occurred while transferring weapon ownership",
-                      });
+                    res.status(500).json({
+                      message:
+                        "Error occurred while transferring weapon ownership",
+                    });
                   });
                 }
 
@@ -84,12 +82,9 @@ let BuyListedItem = (req, res) => {
                   (error) => {
                     if (error) {
                       return db.rollback(function () {
-                        res
-                          .status(500)
-                          .json({
-                            message:
-                              "Error occurred while setting isListed to 0",
-                          });
+                        res.status(500).json({
+                          message: "Error occurred while setting isListed to 0",
+                        });
                       });
                     }
 
@@ -101,12 +96,9 @@ let BuyListedItem = (req, res) => {
                       (error) => {
                         if (error) {
                           return db.rollback(function () {
-                            res
-                              .status(500)
-                              .json({
-                                message:
-                                  "Error occurred while deleting listing",
-                              });
+                            res.status(500).json({
+                              message: "Error occurred while deleting listing",
+                            });
                           });
                         }
 
@@ -117,12 +109,10 @@ let BuyListedItem = (req, res) => {
                           (error) => {
                             if (error) {
                               return db.rollback(function () {
-                                res
-                                  .status(500)
-                                  .json({
-                                    message:
-                                      "Error occurred while updating buyer's money",
-                                  });
+                                res.status(500).json({
+                                  message:
+                                    "Error occurred while updating buyer's money",
+                                });
                               });
                             }
 
@@ -132,32 +122,25 @@ let BuyListedItem = (req, res) => {
                               (error) => {
                                 if (error) {
                                   return db.rollback(function () {
-                                    res
-                                      .status(500)
-                                      .json({
-                                        message:
-                                          "Error occurred while updating seller's money",
-                                      });
+                                    res.status(500).json({
+                                      message:
+                                        "Error occurred while updating seller's money",
+                                    });
                                   });
                                 }
 
                                 db.commit(function (err) {
                                   if (err) {
                                     return db.rollback(function () {
-                                      res
-                                        .status(500)
-                                        .json({
-                                          message:
-                                            "Error committing transaction",
-                                        });
+                                      res.status(500).json({
+                                        message: "Error committing transaction",
+                                      });
                                     });
                                   }
                                   console.log("Transaction Complete.");
-                                  res
-                                    .status(200)
-                                    .json({
-                                      message: "Transaction successful",
-                                    });
+                                  res.status(200).json({
+                                    message: "Transaction successful",
+                                  });
                                 });
                               }
                             );
@@ -177,5 +160,5 @@ let BuyListedItem = (req, res) => {
 };
 
 module.exports = {
-    BuyListedItem
-}
+  BuyListedItem,
+};

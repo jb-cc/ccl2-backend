@@ -12,8 +12,13 @@ function logout(req, res, next) {
   authModel.logout(req, res, next);
 }
 
+function sendBackUser(req, res, next) {
+  authModel.sendBackUserDataFromToken(req, res, next);
+}
+
 module.exports = {
   registerUser,
   login,
   logout,
+  sendBackUser,
 };

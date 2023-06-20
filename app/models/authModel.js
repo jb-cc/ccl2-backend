@@ -151,8 +151,53 @@ function logout(req, res, next) {
   res.status(200).json({ message: "User logout successful" });
 }
 
+let sendBackUserDataFromToken = (req, res, next) => {
+  if (req.auth) {
+    console.log(
+      "[sendBackUserDataFromToken]: req.auth: " + JSON.stringify(req.auth)
+    );
+    const query = "SELECT * FROM CCL_users WHERE id = ?";
+    db.query(query, [req.auth.id], (error, results) => {
+      if (error) {
+        res
+          .status(500)
+          .json({ message: "Error occurred while checking for user" });
+        return;
+      }
+
+      if (results.length === 0) {
+        res.status(400).json({ message: "User does not exist" });
+        return;
+      }
+
+      const user = results[0];
+      console.log(
+        "user found, sending back user data: " +
+          JSON.stringify({
+            id: user.id,
+            username: user.username,
+            email: user.email,
+            balance: user.balance,
+          })
+      );
+      res.status(200).json({
+        message: "User found",
+        user: {
+          id: user.id,
+          username: user.username,
+          email: user.email,
+          balance: user.balance,
+        },
+      });
+    });
+  } else {
+    res.status(400).json({ message: "User is not logged in" });
+  }
+};
+
 module.exports = {
   registerUser,
   loginUser,
   logout,
+  sendBackUserDataFromToken,
 };

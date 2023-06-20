@@ -10,6 +10,7 @@ router.post('/register', authController.registerUser);
 router.post('/login', authController.login);
 router.post('/logout', authController.logout);
 router.get('/logout', authController.logout);
+router.get('/me', authController.sendBackUser);
 
 
 

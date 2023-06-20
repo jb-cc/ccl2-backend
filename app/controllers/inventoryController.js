@@ -5,7 +5,7 @@ function getUserInventory(req, res, next) {
   inventoryModel
     .getUserInventory(parseInt(req.params.id))
     .then((inventory) => {
-      console.log("got inventory: " + JSON.stringify(inventory));
+      console.table((inventory));
       res.json(inventory); // this was: res.render('inventory', {inventory});
     })
     .catch((err) => {
