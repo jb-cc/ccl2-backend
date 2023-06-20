@@ -8,6 +8,7 @@ const ACCESS_TOKEN_SECRET = process.env.ACCESS_TOKEN_SECRET;
 
 const app = express();
 let corsOptions = {
+    // origin: 'https://cc221012-10141.node.fhstp.io',
     origin: 'http://localhost:8081',
     credentials: true,
 };
