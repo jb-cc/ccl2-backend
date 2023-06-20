@@ -73,10 +73,27 @@ let addUser = (userData) => new Promise( async (resolve,reject)=> {
 });
 
 
+let depositBalance= (req, res, next) => {
+    console.log('req.body.amount: '+req.body.amount);
+    db.query(`UPDATE CCL_users SET balance = balance + ${req.body.amount} WHERE id = ${req.params.id}`, function (err, result, fields) {
+        if (err) {
+            console.log(err);
+            return
+        }
+        console.log('Added '+req.body.amount+' to balance of user with id '+req.params.id);
+        res.status(200).json({
+            message: "Balance successfully deposited.",
+        });
+        next();
+
+    });
+}
+
 module.exports = {
     getUsers,
     getUser,
     updateUser,
     addUser,
-    deleteUser
+    deleteUser,
+    depositBalance,
 }
