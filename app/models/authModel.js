@@ -102,7 +102,7 @@ function loginUser(req, res, next) {
 
     if (results.length === 0) {
       console.log('Username does not exist')
-      res.status(400).json({ message: "Username does not exist" });
+      res.status(400).json({ message: "Incorrect username or password" });
       return;
     }
 
@@ -119,7 +119,7 @@ function loginUser(req, res, next) {
 
       if (!match) {
         console.log('Incorrect password')
-        res.status(400).json({ message: "Incorrect password" });
+        res.status(400).json({ message: "Incorrect username or password" });
         return;
       }
 
