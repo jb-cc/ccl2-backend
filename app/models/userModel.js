@@ -29,18 +29,48 @@ let getUser = (id) =>
     );
   });
 
-let deleteUser = (id) =>
+let deleteUser = (req, res, next) =>
   new Promise((resolve, reject) => {
-    db.query(
-      `DELETE FROM CCL_users WHERE id=${id}`,
-      function (err, users, fields) {
-        if (err) {
-          reject(err);
-        }
-        console.log(users);
-        resolve(users[0]);
+    console.log("req.auth.id: " + req.auth.id);
+    req.body.id = parseInt(req.auth.id);
+    const id = req.body.id;
+    const password = req.body.password;
+
+    const sql = `SELECT * FROM CCL_users WHERE id = ?`;
+
+    db.query(sql, [id], async (err, results) => {
+      if (err) {
+        console.log(`Error fetching user: ${err.message}`);
+        res
+          .status(500)
+          .json({ message: 'Error fetching user, are you logged in?' });
+        return;
       }
-    );
+
+      const user = results[0];
+      console.log("user: " + JSON.stringify(user));
+
+      const isMatch = await bcrypt.compare(password, user.password);
+      if (!isMatch) {
+        console.log("password is incorrect");
+        res.status(400).json({ message: "Password is incorrect" });
+        return;
+      }
+      console.log("password is correct");
+      const sql = `DELETE FROM CCL_users WHERE id = ?`;
+      db.query(sql, [id], (err, results) => {
+        if (err) {
+          console.log("error deleting user");
+          res
+            .status(500)
+            .json({ message: `Error deleting user: ${err.message}` });
+          return;
+        }
+        console.log("user deleted");
+        res.status(200).json({ message: "User deleted" });
+        return;
+      });
+    });
   });
 
 // updates only account info, not balance
@@ -106,7 +136,7 @@ let updateUser = async (req, res, next) => {
         `User with id ${id} updated successfully. New username: ${newUsername}, new email: ${newEmail}`
       );
       const token = jwt.sign(
-        { id: user.id, username: newUsername },
+        { id: id, username: newUsername },
         ACCESS_TOKEN_SECRET,
         {
           expiresIn: 86400, // expires in 24 hours
@@ -118,7 +148,7 @@ let updateUser = async (req, res, next) => {
         // sameSite: 'none',
         // include 'secure: true' as well if using https
       });
-      console.log("new token: " + token)
+      console.log("new token: " + token);
       res.status(200).json({ message: "User updated successfully" });
     });
   });

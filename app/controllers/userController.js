@@ -33,15 +33,7 @@ function editUser(req, res, next) {
 }
 
 function deleteUser(req, res, next) {
-  userModel
-    .deleteUser(req.params.id)
-    .then(() => {
-      res.json({});
-    })
-    .catch((err) => {
-      res.status(404);
-      next(err);
-    });
+  userModel.deleteUser(req, res, next);
 }
 
 function depositBalance(req, res, next) {

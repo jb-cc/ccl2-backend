@@ -18,9 +18,11 @@ function registerUser(req, res, next) {
   const query = "SELECT * FROM CCL_users WHERE username = ? OR email = ?";
   db.query(query, [username, email], (error, results) => {
     if (error) {
+      console.log("Error occurred while checking for existing user");
+      console.log(error);
       res
         .status(500)
-        .json({ message: "Error occurred while checking for existing user" });
+        .json({ message: "Error occurred while checking for existing user.If you are trying to input an emoji, please remove it, as usernames can not contain emojis." });
       return;
     }
 
@@ -85,7 +87,7 @@ function loginUser(req, res, next) {
   const password = req.body.password;
 
   if (!username || !password) {
-    console.log('User did not provide username or password')
+    console.log("User did not provide username or password");
     res.status(400).json({ message: "All fields are required" });
     return;
   }
@@ -93,15 +95,15 @@ function loginUser(req, res, next) {
   const query = "SELECT * FROM CCL_users WHERE username = ?";
   db.query(query, [username], (error, results) => {
     if (error) {
-      console.log('Error occurred while checking for user')
+      console.log("Error occurred while checking for user"+error);
       res
         .status(500)
-        .json({ message: "Error occurred while checking for user" });
+        .json({ message: "Error occurred while checking user.If you are trying to input an emoji, please remove it, as usernames can not contain emojis." });
       return;
     }
 
     if (results.length === 0) {
-      console.log('Username does not exist')
+      console.log("Username does not exist");
       res.status(400).json({ message: "Incorrect username or password" });
       return;
     }
@@ -110,7 +112,7 @@ function loginUser(req, res, next) {
 
     bcrypt.compare(password, user.password, (err, match) => {
       if (err) {
-        console.log('Error occurred during password comparison')
+        console.log("Error occurred during password comparison");
         res
           .status(500)
           .json({ message: "Error occurred during password comparison" });
@@ -118,7 +120,7 @@ function loginUser(req, res, next) {
       }
 
       if (!match) {
-        console.log('Incorrect password')
+        console.log("Incorrect password");
         res.status(400).json({ message: "Incorrect username or password" });
         return;
       }
@@ -137,7 +139,7 @@ function loginUser(req, res, next) {
         // include 'secure: true' as well if using https
       });
 
-      console.log('User login successful')
+      console.log("User login successful");
       res.status(200).json({
         message: "User login successful",
         token: token,
