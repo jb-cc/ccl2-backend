@@ -27,77 +27,9 @@ function getUser(req, res, next) {
 }
 
 function editUser(req, res, next) {
-  userModel
-    .getUser(parseInt(req.params.id))
-    .then((user) => {
-      res.json(user); // this was: res.render('editUser', {user});
-    })
-    .catch((err) => {
-      res.status(404);
-      next(err);
-    });
-}
-
-function updateUser(req, res, next) {
-  req.body.id = req.params.id;
-  userModel
-    .updateUser(req.body)
-    .then((user) => {
-      res.json(user); // this was: res.render('user', {user});
-    })
-    .catch((err) => {
-      res.status(404);
-      next(err);
-    });
-}
-
-function addUser(req, res, next) {
-  userModel
-    .getUser(1)
-    .then((user) => {
-      res.json(user); // this was: res.render('addUser', {user});
-    })
-    .catch((err) => {
-      res.status(404);
-      next(err);
-    });
-}
-
-function register(req, res, next) {
-  userModel
-    .getUser(1)
-    .then((user) => {
-      res.json(user); // this was: res.render('addUser', {user});
-    })
-    .catch((err) => {
-      res.status(404);
-      next(err);
-    });
-}
-
-function registerNewUser(req, res, next) {
-  console.log("BODY: " + JSON.stringify(req.body, null, 2));
-  userModel
-    .addUser(req.body)
-    .then((user) => {
-      res.json(user); // this was: res.redirect("/users");
-    })
-    .catch((err) => {
-      res.status(404);
-      next(err);
-    });
-}
-
-function setNewUser(req, res, next) {
-  userModel
-    .addUser(req.body)
-    .then((user) => {
-      res.json(user); // this was: res.redirect("/users/" + user.id);
-    })
-    .catch((err) => {
-      res.status(404);
-      next(err);
-    });
+  req.body.id = req.auth.id;
+  console.log("req.body: " + JSON.stringify(req.body));
+  userModel.updateUser(req, res, next);
 }
 
 function deleteUser(req, res, next) {
@@ -120,11 +52,6 @@ module.exports = {
   getUsers,
   getUser,
   editUser,
-  updateUser,
-  addUser,
-  setNewUser,
   deleteUser,
-  register,
-  registerNewUser,
   depositBalance,
 };

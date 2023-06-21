@@ -1,99 +1,156 @@
-const db = require('../config/database').config;
-const bcrypt = require('bcrypt');
+const db = require("../config/database").config;
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
+const ACCESS_TOKEN_SECRET = process.env.ACCESS_TOKEN_SECRET;
 
-
-
-let getUsers = () => new Promise((resolve,reject)=>{
+let getUsers = () =>
+  new Promise((resolve, reject) => {
     db.query("SELECT * FROM CCL_users", function (err, users, fields) {
-        if (err) {
-            reject(err)
-        }
-        console.log('got users: '+users);
-        resolve(users);
+      if (err) {
+        reject(err);
+      }
+      console.log("got users: " + users);
+      resolve(users);
     });
-});
+  });
 
-let getUser = (id) => new Promise((resolve,reject)=>{
-    console.log('id: '+id);
-    db.query(`SELECT * FROM CCL_users WHERE id=${id}`, function (err, users, fields){
-        if(err){
-            reject(err);
+let getUser = (id) =>
+  new Promise((resolve, reject) => {
+    console.log("id: " + id);
+    db.query(
+      `SELECT * FROM CCL_users WHERE id=${id}`,
+      function (err, users, fields) {
+        if (err) {
+          reject(err);
         }
-        console.log(`user with id ${id}: `+JSON.stringify(users[0]));
+        console.log(`user with id ${id}: ` + JSON.stringify(users[0]));
         resolve(users[0]);
-    });
-});
+      }
+    );
+  });
 
-let deleteUser = (id) => new Promise((resolve,reject)=>{
-    db.query(`DELETE FROM CCL_users WHERE id=${id}`, function (err, users, fields) {
+let deleteUser = (id) =>
+  new Promise((resolve, reject) => {
+    db.query(
+      `DELETE FROM CCL_users WHERE id=${id}`,
+      function (err, users, fields) {
         if (err) {
-            reject(err);
+          reject(err);
         }
         console.log(users);
         resolve(users[0]);
-    });
-});
+      }
+    );
+  });
 
 // updates only account info, not balance
-let updateUser = (userData) => new Promise( async (resolve,reject)=> {
-    userData.password = await bcrypt.hash(userData.password, 10);
-    let sql = "UPDATE CCL_users SET " +
-        "username = " + db.escape(userData.username) +
-        ", email = " + db.escape(userData.email) +
-        ", password = " + db.escape(userData.password) +
-        "WHERE id = " + parseInt(userData.id);
-    console.log(sql);
-    db.query(sql, function (err, result, fields){
-        if(err) {
-            reject(err)
-        }
-        resolve(userData)
+let updateUser = async (req, res, next) => {
+  console.log("started updateUser");
+  const { newUsername, newEmail, newPassword, oldPassword, id } = req.body;
+
+  if (!newUsername || !newEmail || !newPassword || !oldPassword) {
+    console.log("missing  in input");
+    res.status(400).json({ message: "Please fill out all fields" });
+    return;
+  }
+
+  if (!id) {
+    console.log("id not provided");
+    res.status(401).json({
+      message:
+        "You are not logged in or JWT is not valid. Try signing out and in again.",
     });
-});
+    return;
+  }
 
-let addUser = (userData) => new Promise( async (resolve,reject)=> {
-    console.log(userData.username, userData.email, userData.password);
-    userData.password = await bcrypt.hash(userData.password, 10);
-    let sql = "INSERT INTO CCL_users (username, email, password) VALUES (" +
-        db.escape(userData.username) + ",  " +
-        db.escape(userData.email)+ ",  "  +
-        db.escape(userData.password)+ ")" ;
+  const query = "SELECT * FROM CCL_users WHERE id = ?";
+  db.query(query, [id], async (err, results) => {
+    if (err) {
+      console.log("error fetching user");
+      res.status(500).json({ message: `Error fetching user: ${err.message}` });
+      return;
+    }
 
-    console.log('sql command sent: '+sql);
-    db.query(sql, function (err, result, fields){
-        if(err) {
-            console.log(err)
-            reject(err)
-            return
+    if (results.length === 0) {
+      console.log("user does not exist");
+      res.status(400).json({ message: "User does not exist" });
+      return;
+    }
+
+    const user = results[0];
+    console.log("user: " + JSON.stringify(user));
+    console.log("results: " + JSON.stringify(results));
+
+    const isMatch = await bcrypt.compare(oldPassword, user.password);
+    if (!isMatch) {
+      console.log("old password is incorrect");
+      res.status(400).json({ message: "Old password is incorrect" });
+      return;
+    }
+
+    console.log("old password is correct");
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    const sql =
+      "UPDATE CCL_users SET username = ?, email = ?, password = ? WHERE id = ?";
+    const params = [newUsername, newEmail, hashedPassword, parseInt(id)];
+
+    db.query(sql, params, (err, result) => {
+      if (err) {
+        console.log("in db.query: error updating user");
+        res
+          .status(500)
+          .json({ message: `Error updating user: ${err.message}` });
+        return;
+      }
+      console.log(
+        `User with id ${id} updated successfully. New username: ${newUsername}, new email: ${newEmail}`
+      );
+      const token = jwt.sign(
+        { id: user.id, username: newUsername },
+        ACCESS_TOKEN_SECRET,
+        {
+          expiresIn: 86400, // expires in 24 hours
         }
-        userData.id = result.insertId;
-        console.log('result.insertId: '+result.insertId);
-        resolve(userData)
+      );
+
+      res.cookie("token", token, {
+        httpOnly: true,
+        // sameSite: 'none',
+        // include 'secure: true' as well if using https
+      });
+      console.log("new token: " + token)
+      res.status(200).json({ message: "User updated successfully" });
     });
-});
+  });
+};
 
-
-let depositBalance= (req, res, next) => {
-    console.log('req.body.amount: '+req.body.amount);
-    db.query(`UPDATE CCL_users SET balance = balance + ${req.body.amount} WHERE id = ${req.params.id}`, function (err, result, fields) {
-        if (err) {
-            console.log(err);
-            return
-        }
-        console.log('Added '+req.body.amount+' to balance of user with id '+req.params.id);
-        res.status(200).json({
-            message: "Balance successfully deposited.",
-        });
-        next();
-
-    });
-}
+let depositBalance = (req, res, next) => {
+  console.log("req.body.amount: " + req.body.amount);
+  db.query(
+    `UPDATE CCL_users SET balance = balance + ${req.body.amount} WHERE id = ${req.params.id}`,
+    function (err, result, fields) {
+      if (err) {
+        console.log(err);
+        return;
+      }
+      console.log(
+        "Added " +
+          req.body.amount +
+          " to balance of user with id " +
+          req.params.id
+      );
+      res.status(200).json({
+        message: "Balance successfully deposited.",
+      });
+      next();
+    }
+  );
+};
 
 module.exports = {
-    getUsers,
-    getUser,
-    updateUser,
-    addUser,
-    deleteUser,
-    depositBalance,
-}
+  getUsers,
+  getUser,
+  updateUser,
+  deleteUser,
+  depositBalance,
+};

@@ -15,3 +15,19 @@ config.connect(function(err) {
 });
 
 module.exports = {config}
+
+
+// function connectToDatabase() {
+//     config.connect(function(err) {
+//         if (err) {
+//             console.error("Failed to connect to database, retrying...", err);
+//             // Here we wait for a certain amount of time before retrying
+//             setTimeout(connectToDatabase, 2000);
+//         } else {
+//             console.log("Connected to database!");
+//         }
+//     });
+// }
+//
+// // Call the function initially
+// connectToDatabase();
