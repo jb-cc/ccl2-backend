@@ -20,9 +20,10 @@ function registerUser(req, res, next) {
     if (error) {
       console.log("Error occurred while checking for existing user");
       console.log(error);
-      res
-        .status(500)
-        .json({ message: "Error occurred while checking for existing user.If you are trying to input an emoji, please remove it, as usernames can not contain emojis." });
+      res.status(500).json({
+        message:
+          "Error occurred while checking for existing user.If you are trying to input an emoji, please remove it, as usernames can not contain emojis.",
+      });
       return;
     }
 
@@ -54,27 +55,44 @@ function registerUser(req, res, next) {
           }
 
           // Create JWT and send it back to the client
-          const token = jwt.sign(
-            { id: result.id, username: username },
-            ACCESS_TOKEN_SECRET,
-            {
-              expiresIn: 86400, // expires in 24 hours
+          db.query("SELECT LAST_INSERT_ID() AS id", (err, id) => {
+            if (err) {
+              res.status(500).json({
+                message: "Error occurred while fetching last inserted id",
+              });
+              return;
             }
-          );
-          res.cookie("token", token, {
-            httpOnly: true,
-            // include 'secure: true' as well if using https, have to check back if node from the fh is using https
-          });
-          res.status(201).json({
-            message: "User registered successfully",
-            result,
-            token: token,
-            user: {
-              id: result.insertId,
-              username: username,
-              email: email,
-              balance: 0,
-            },
+            const newID = id[0].id;
+            console.log(
+              "User registered successfully with id: " +
+                newID+
+                " username: " +
+                username +
+                " email: " +
+                email
+            );
+            const token = jwt.sign(
+              { id: newID, username},
+              ACCESS_TOKEN_SECRET,
+              {
+                expiresIn: 86400, // expires in 24 hours
+              }
+            );
+            res.cookie("token", token, {
+              httpOnly: true,
+              // include 'secure: true' as well if using https, have to check back if node from the fh is using https
+            });
+            res.status(201).json({
+              message: "User registered successfully",
+              result,
+              token: token,
+              user: {
+                id: result.insertId,
+                username: username,
+                email: email,
+                balance: 0,
+              },
+            });
           });
         }
       );
@@ -95,10 +113,11 @@ function loginUser(req, res, next) {
   const query = "SELECT * FROM CCL_users WHERE username = ?";
   db.query(query, [username], (error, results) => {
     if (error) {
-      console.log("Error occurred while checking for user"+error);
-      res
-        .status(500)
-        .json({ message: "Error occurred while checking user.If you are trying to input an emoji, please remove it, as usernames can not contain emojis." });
+      console.log("Error occurred while checking for user" + error);
+      res.status(500).json({
+        message:
+          "Error occurred while checking user.If you are trying to input an emoji, please remove it, as usernames can not contain emojis.",
+      });
       return;
     }
 
