@@ -1,30 +1,41 @@
-require ('dotenv').config();
+require('dotenv').config();
 const mysql = require('mysql');
 
-const createConnection = () => {
-    const config = mysql.createConnection({
+let config;
+
+const handleDisconnect = () => {
+    config = mysql.createConnection({
         host: 'atp.fhstp.ac.at',
         port: 8007,
         user: process.env.DB_USERNAME,
         password: process.env.DB_PASSWORD,
-        database: "cc221012",
+        database: 'cc221012',
     });
 
     config.connect(function(err) {
         if (err) {
-            console.error("Error connecting to database. Retrying...");
-            setTimeout(createConnection, 5000); // retry after 5 seconds
-            return;
+            console.error('Error when connecting to database:', err);
+            setTimeout(handleDisconnect, 2000); // If error, try reconnecting after 2 seconds
+        } else {
+            console.log('Connected to database!');
         }
-        console.log("Connected to database!");
     });
 
-    return config;
-}
+    config.on('error', function(err) {
+        console.error('Database error', err);
+        if(err.code === 'PROTOCOL_CONNECTION_LOST') { // If connection was lost, try reconnecting
+            handleDisconnect();
+            console.log('Reconnected to database!')
+        } else {
+            throw err;
+        }
+    });
+};
 
-const config = createConnection();
+handleDisconnect();
 
-module.exports = { config }
+module.exports = { config };
+
 //
 // =====================================OLD CONFIG=====================================
 // require ('dotenv').config();
