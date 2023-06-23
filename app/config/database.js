@@ -18,7 +18,7 @@ const handleDisconnect = () => {
     config.connect(function(err) {
         if (err) {
             console.error('Error when connecting to database:', err);
-            setTimeout(handleDisconnect, 2000); // If error, try reconnecting after 2 seconds
+            handleDisconnect(); // If error, try reconnecting after 2 seconds
         } else {
             console.log('Connected to database!');
         }

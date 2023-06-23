@@ -19,7 +19,7 @@ const app = express();
 // Configuration for CORS middleware
 let corsOptions = {
     origin: 'https://cc221012-10141.node.fhstp.io',
-    // origin: 'localhost:8080',
+    // origin: 'http://localhost:8081',
     credentials: true,
 };
 
