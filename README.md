@@ -66,6 +66,16 @@ These are the dependencies:
 "mysql": "^2.18.1"
 }
 
+
+Then, to start the backend, run
+```
+node server.js
+```
+and the frontend (in the CCL2 Frontend directory) with
+```
+npm run dev
+```
+
 ## Usage
 
 Go to http://localhost:8081/ in your browser, or to the route you customized.
