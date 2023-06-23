@@ -79,7 +79,7 @@ let updateUser = async (req, res, next) => {
   const { newUsername, newEmail, newPassword, oldPassword, id } = req.body;
 
   if (!newUsername || !newEmail || !newPassword || !oldPassword) {
-    console.log("missing  in input");
+    console.log("missing input");
     res.status(400).json({ message: "Please fill out all fields" });
     return;
   }
@@ -87,72 +87,77 @@ let updateUser = async (req, res, next) => {
   if (!id) {
     console.log("id not provided");
     res.status(401).json({
-      message:
-        "You are not logged in or JWT is not valid. Try signing out and in again.",
+      message: "You are not logged in or JWT is not valid. Try signing out and in again.",
     });
     return;
   }
 
-  const query = "SELECT * FROM CCL_users WHERE id = ?";
-  db.query(query, [id], async (err, results) => {
-    if (err) {
-      console.log("error fetching user");
-      res.status(500).json({ message: `Error fetching user: ${err.message}` });
+  // Check for existing user
+  const userCheckQuery = "SELECT * FROM CCL_users WHERE username = ? OR email = ?";
+  db.query(userCheckQuery, [newUsername, newEmail], (error, results) => {
+    if (error) {
+      console.log("Error occurred while checking for existing user");
+      console.log(error);
+      res.status(500).json({
+        message:
+            "Error occurred while checking for existing user. If you are trying to input an emoji, please remove it, as usernames can not contain emojis.",
+      });
       return;
     }
 
-    if (results.length === 0) {
-      console.log("user does not exist");
-      res.status(400).json({ message: "User does not exist" });
+    if (results.length > 0) {
+      res.status(400).json({ message: "Username or email already exists" });
       return;
     }
 
-    const user = results[0];
-    console.log("user: " + JSON.stringify(user));
-    console.log("results: " + JSON.stringify(results));
-
-    const isMatch = await bcrypt.compare(oldPassword, user.password);
-    if (!isMatch) {
-      console.log("old password is incorrect");
-      res.status(400).json({ message: "Old password is incorrect" });
-      return;
-    }
-
-    console.log("old password is correct");
-    const hashedPassword = await bcrypt.hash(newPassword, 10);
-    const sql =
-      "UPDATE CCL_users SET username = ?, email = ?, password = ? WHERE id = ?";
-    const params = [newUsername, newEmail, hashedPassword, parseInt(id)];
-
-    db.query(sql, params, (err, result) => {
+    // Fetch user
+    const query = "SELECT * FROM CCL_users WHERE id = ?";
+    db.query(query, [id], async (err, results) => {
       if (err) {
-        console.log("in db.query: error updating user");
-        res
-          .status(500)
-          .json({ message: `Error updating user: ${err.message}` });
+        console.log("error fetching user");
+        res.status(500).json({ message: `Error fetching user: ${err.message}` });
         return;
       }
-      console.log(
-        `User with id ${id} updated successfully. New username: ${newUsername}, new email: ${newEmail}`
-      );
-      const token = jwt.sign(
-        { id: id, username: newUsername },
-        ACCESS_TOKEN_SECRET,
-        {
-          expiresIn: 86400, // expires in 24 hours
-        }
-      );
 
-      res.cookie("token", token, {
-        httpOnly: true,
-        // sameSite: 'none',
-        // include 'secure: true' as well if using https
+      if (results.length === 0) {
+        console.log("user does not exist");
+        res.status(400).json({ message: "User does not exist" });
+        return;
+      }
+
+      const user = results[0];
+      console.log("user: " + JSON.stringify(user));
+      console.log("results: " + JSON.stringify(results));
+
+      const isMatch = await bcrypt.compare(oldPassword, user.password);
+      if (!isMatch) {
+        console.log("old password is incorrect");
+        res.status(400).json({ message: "Old password is incorrect" });
+        return;
+      }
+
+      console.log("old password is correct");
+      const hashedPassword = await bcrypt.hash(newPassword, 10);
+      const sql = "UPDATE CCL_users SET username = ?, email = ?, password = ? WHERE id = ?";
+      const params = [newUsername, newEmail, hashedPassword, parseInt(id)];
+
+      db.query(sql, params, (err, result) => {
+        if (err) {
+          console.log("in db.query: error updating user");
+          res.status(500).json({ message: `Error updating user: ${err.message}` });
+          return;
+        }
+        console.log(`User with id ${id} updated successfully. New username: ${newUsername}, new email: ${newEmail}`);
+        const token = jwt.sign({ id: id, username: newUsername }, ACCESS_TOKEN_SECRET, { expiresIn: 86400 });
+
+        res.cookie("token", token, { httpOnly: true });
+        console.log("new token: " + token);
+        res.status(200).json({ message: "User updated successfully" });
       });
-      console.log("new token: " + token);
-      res.status(200).json({ message: "User updated successfully" });
     });
   });
 };
+
 
 let depositBalance = (req, res, next) => {
   console.log("req.body.amount: " + req.body.amount);
