@@ -1,41 +1,29 @@
+// require database connection, bcrypt and jsonwebtoken, secret key
+
+
+
 const db = require("../config/database").config;
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const ACCESS_TOKEN_SECRET = process.env.ACCESS_TOKEN_SECRET;
 
-let getUsers = () =>
-  new Promise((resolve, reject) => {
-    db.query("SELECT * FROM CCL_users", function (err, users, fields) {
-      if (err) {
-        reject(err);
-      }
-      console.log("got users: " + users);
-      resolve(users);
-    });
-  });
 
-let getUser = (id) =>
-  new Promise((resolve, reject) => {
-    console.log("id: " + id);
-    db.query(
-      `SELECT * FROM CCL_users WHERE id=${id}`,
-      function (err, users, fields) {
-        if (err) {
-          reject(err);
-        }
-        console.log(`user with id ${id}: ` + JSON.stringify(users[0]));
-        resolve(users[0]);
-      }
-    );
-  });
+
+
+// in most other functions, we use the req.body.id to get the id of the user, but in this case, we use req.auth.id
+// This is because we are using the JWT middleware, which puts the payload of the JWT into the req.auth variable
+// This is for security reasons, because the JWT is signed with the secret key; and because this route is protected by the JWT middleware, we can be sure that the user is logged in, and that the JWT is valid
+
+
 
 let deleteUser = (req, res, next) =>
   new Promise((resolve, reject) => {
     console.log("req.auth.id: " + req.auth.id);
-    req.body.id = parseInt(req.auth.id);
+    req.body.id = req.auth.id;
     const id = req.body.id;
     const password = req.body.password;
 
+// query the database for the user with the specified id
     const sql = `SELECT * FROM CCL_users WHERE id = ?`;
 
     db.query(sql, [id], async (err, results) => {
@@ -50,6 +38,7 @@ let deleteUser = (req, res, next) =>
       const user = results[0];
       console.log("user: " + JSON.stringify(user));
 
+      // check for password match
       const isMatch = await bcrypt.compare(password, user.password);
       if (!isMatch) {
         console.log("password is incorrect");
@@ -57,6 +46,8 @@ let deleteUser = (req, res, next) =>
         return;
       }
       console.log("password is correct");
+
+      // if password is correct, delete the user
       const sql = `DELETE FROM CCL_users WHERE id = ?`;
       db.query(sql, [id], (err, results) => {
         if (err) {
@@ -76,14 +67,17 @@ let deleteUser = (req, res, next) =>
 // updates only account info, not balance
 let updateUser = async (req, res, next) => {
   console.log("started updateUser");
+  req.body.id = req.auth.id;
   const { newUsername, newEmail, newPassword, oldPassword, id } = req.body;
 
+  // check for missing input
   if (!newUsername || !newEmail || !newPassword || !oldPassword) {
     console.log("missing input");
     res.status(400).json({ message: "Please fill out all fields" });
     return;
   }
 
+  // check for missing id. This should never happen, because the id is set to req.auth.id, which is set by the JWT middleware
   if (!id) {
     console.log("id not provided");
     res.status(401).json({
@@ -92,7 +86,7 @@ let updateUser = async (req, res, next) => {
     return;
   }
 
-  // Check for existing user
+  // Check for existing username or email
   const userCheckQuery = "SELECT * FROM CCL_users WHERE username = ? OR email = ?";
   db.query(userCheckQuery, [newUsername, newEmail], (error, results) => {
     if (error) {
@@ -105,6 +99,7 @@ let updateUser = async (req, res, next) => {
       return;
     }
 
+    // if username / email exists, return error
     if (results.length > 0) {
       res.status(400).json({ message: "Username or email already exists" });
       return;
@@ -129,6 +124,7 @@ let updateUser = async (req, res, next) => {
       console.log("user: " + JSON.stringify(user));
       console.log("results: " + JSON.stringify(results));
 
+      // check for password match
       const isMatch = await bcrypt.compare(oldPassword, user.password);
       if (!isMatch) {
         console.log("old password is incorrect");
@@ -136,6 +132,7 @@ let updateUser = async (req, res, next) => {
         return;
       }
 
+      // if password is correct, update the user
       console.log("old password is correct");
       const hashedPassword = await bcrypt.hash(newPassword, 10);
       const sql = "UPDATE CCL_users SET username = ?, email = ?, password = ? WHERE id = ?";
@@ -148,8 +145,11 @@ let updateUser = async (req, res, next) => {
           return;
         }
         console.log(`User with id ${id} updated successfully. New username: ${newUsername}, new email: ${newEmail}`);
+
+        // create new token with updated username
         const token = jwt.sign({ id: id, username: newUsername }, ACCESS_TOKEN_SECRET, { expiresIn: 86400 });
 
+        // set new token as cookie
         res.cookie("token", token, { httpOnly: true });
         console.log("new token: " + token);
         res.status(200).json({ message: "User updated successfully" });
@@ -159,6 +159,7 @@ let updateUser = async (req, res, next) => {
 };
 
 
+// updates account balance, this does not require much security, as anyone can deposit infinite money into their account (its not real money)
 let depositBalance = (req, res, next) => {
   console.log("req.body.amount: " + req.body.amount);
   db.query(
@@ -185,8 +186,6 @@ let depositBalance = (req, res, next) => {
 
 
 module.exports = {
-  getUsers,
-  getUser,
   updateUser,
   deleteUser,
   depositBalance,
