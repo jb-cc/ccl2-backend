@@ -1,6 +1,9 @@
+// require models
+
+
 const tradeModel = require("../models/tradeModel");
 
-// Here is where the Buying and selling logic will be implemented
+// the only purpose of this controller is to call the Buy function, as it is the most complex function in the whole project
 
 let BuyListedSkin = (req, res, next) => {
     tradeModel.BuyListedItem(req, res, next);

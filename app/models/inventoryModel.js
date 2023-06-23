@@ -2,6 +2,13 @@
 
 const db = require("../config/database").config;
 
+
+
+// getUserInventory function:
+// serves user inventory by getting the user's inventory from the database.
+// the ID is the user ID
+
+
 let getUserInventory = (id) =>
   new Promise((resolve, reject) => {
     // the ID is the user ID
@@ -19,18 +26,12 @@ let getUserInventory = (id) =>
     );
   });
 
-let updateSkinOwner = (sellerWeaponID, buyerID) =>
-  new Promise((resolve, reject) => {
-    db.query(
-      `UPDATE CCL_inventory SET userID = ${buyerID} WHERE userWeaponID = ${sellerWeaponID};`,
-      function (err, inventory, fields) {
-        if (err) {
-          reject(err);
-        }
-        resolve(); // don't need to return anything, because only metadata would be returned
-      }
-    );
-  });
+// getItemByUserWeaponID function:
+// sends back the item by user weapon ID.
+// Important: the userWeaponID is the unique ID of the item in the inventory. It is not the weapon ID.
+// The userWeaponID is the primary key of the CCL_inventory table, and is auto incremented. Any item is only unique while a user has it in their inventory.
+// You can imagine the ccl_weapons table as a collection of blueprints for weapons, and the ccl_inventory table as actual manufactured weapons that are in the user's inventory.
+
 
 let getItemByUserWeaponID = (userWeaponID) =>
   new Promise((resolve, reject) => {
@@ -47,6 +48,5 @@ let getItemByUserWeaponID = (userWeaponID) =>
 
 module.exports = {
   getUserInventory,
-  updateSkinOwner,
   getItemByUserWeaponID,
 };
