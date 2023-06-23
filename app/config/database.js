@@ -6,7 +6,10 @@ const mysql = require('mysql');
 
 let config;
 
+
 const handleDisconnect = () => {
+
+    // create connection to database using the credentials in the .env file
     config = mysql.createConnection({
         host: 'atp.fhstp.ac.at',
         port: 8007,

@@ -93,12 +93,13 @@ let BuyListedItem = (req, res) => {
 
                         // Check if buyer has enough balance to make the purchase
                         if (buyer.balance < price) {
+                            console.log('buyer does not have enough money')
 
                             // Rollback transaction if buyer does not have enough money
                             return db.rollback(function () {
                                 res
                                     .status(400)
-                                    .json({message: "Buyer does not have enough money"});
+                                    .json({message: "You do not have enough money to buy this skin"});
                             });
                         }
 
