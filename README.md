@@ -7,8 +7,10 @@ St. Pölten University of Applied Sciences.
 ## Installation
 
 Clone the repositories:
-https://git.nwt.fhstp.ac.at/cc221012/ccl2-backend
-https://git.nwt.fhstp.ac.at/cc221012/ccl2frontend
+
+[Backend](https://github.com/jb-cc/ccl2-backend)
+
+[Frontend](https://github.com/jb-cc/ccl2-frontend)
 
 There are three parts to this Project, the Frontend, the Backend, and the database. You need all of them to run this
 app.
@@ -36,7 +38,7 @@ ACCESS_TOKEN_SECRET = secret
 
 replace the values with your database credentials, and create a new secret
 
-Currently, you can get the database schema by contacting me, until I upload it here in the near future.
+You can find the sql file for the database here: [SQL File](https://github.com/jb-cc/ccl2-database/blob/main/ccl2-database.sql)
 
 In the version you clone from git (or download from the ecampus), the ports and urls are set to http://localhost:8081/ (
 this is where the frontend is running) and http://localhost:8080/ (for the backend).
