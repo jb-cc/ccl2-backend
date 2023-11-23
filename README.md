@@ -36,6 +36,8 @@ ACCESS_TOKEN_SECRET = secret
 
 replace the values with your database credentials, and create a new secret
 
+Currently, you can get the database schema by contacting me, until I upload it here in the near future.
+
 In the version you clone from git (or download from the ecampus), the ports and urls are set to http://localhost:8081/ (
 this is where the frontend is running) and http://localhost:8080/ (for the backend).
 If you want to change this, run a replace all in your frontend, and replace http://localhost:8080/ with the desired
