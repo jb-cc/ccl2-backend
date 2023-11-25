@@ -24,7 +24,8 @@ let corsOptions = {
 
     // origin: 'https://cc221012-10141.node.fhstp.io',
     // origin: 'http://localhost:8081',
-    origin: 'https://ccl2.jonasbeer.com/',
+
+    origin: ['https://ccl2.jonasbeer.com/','https://melodic-crepe-9771e6.netlify.app/'],
     credentials: true,
 
 };
