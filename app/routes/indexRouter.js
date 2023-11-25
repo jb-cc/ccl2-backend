@@ -6,7 +6,7 @@ const authController = require ('../controllers/authController')
 
 // defining routes, that will be accessed from the client side using axios
 
-// I did not add a route for the '/' route, as that is already in the main server.js file
+// I did not add a route for the '/' route, as that is already in the main api.js file
 
 // the routes defined here are the most important ones, as they are the ones that are used for authentication
 

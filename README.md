@@ -43,7 +43,7 @@ You can find the sql file for the database here: [SQL File](https://github.com/j
 In the version you clone from git (or download from the ecampus), the ports and urls are set to http://localhost:8081/ (
 this is where the frontend is running) and http://localhost:8080/ (for the backend).
 If you want to change this, run a replace all in your frontend, and replace http://localhost:8080/ with the desired
-backend url. In the Backend, you have to navigate to the server.js file, and change the origin to your new frontend
+backend url. In the Backend, you have to navigate to the api.js file, and change the origin to your new frontend
 address
 
 ```
@@ -54,12 +54,11 @@ let corsOptions = {
 };
 ```
 
-also, change your port to your new port the backend runs at: (also server.js)
+also, change your port to your new port the backend runs at: (also api.js)
 
 ```
 // The port the server will listen on
 const PORT = process.env.PORT || 8080;
-
 ```
 
 just to be sure, run
@@ -103,7 +102,7 @@ These are the dependencies for the frontend:
 Then, to start the backend, run
 
 ```
-node server.js
+node api.js
 ```
 
 and the frontend (in the CCL2 Frontend directory) with

@@ -4,6 +4,9 @@
 // However, some routes are not protected, as they are used to display items to the user, but the user can not really do anything with them.
 
 
+// import serverless
+const serverless = require('serverless-http');
+
 // Importing necessary libraries and modules
 const express = require('express');
 const bodyParser = require('body-parser');
@@ -18,9 +21,12 @@ const app = express();
 
 // Configuration for CORS middleware
 let corsOptions = {
+
     // origin: 'https://cc221012-10141.node.fhstp.io',
-    origin: 'http://localhost:8081',
+    // origin: 'http://localhost:8081',
+    origin: 'https://ccl2.jonasbeer.com/',
     credentials: true,
+
 };
 
 // Use cors middleware with the specified options
@@ -68,14 +74,14 @@ app.get('/', (req, res) => {
     res.json({message: 'Welcome to the CCL2 Backend.'});
 });
 
-// The port the server will listen on
+// The port the server will listen on, unused on netlify
 const PORT = process.env.PORT || 8080;
 
 // Import routers
-const indexRouter = require('./app/routes/indexRouter.js');
-const userRouter = require('./app/routes/userRouter.js');
-const listingRouter = require('./app/routes/listingRouter.js');
-const inventoryRouter = require('./app/routes/inventoryRouter.js');
+const indexRouter = require('../../app/routes/indexRouter.js');
+const userRouter = require('../../app/routes/userRouter.js');
+const listingRouter = require('../../app/routes/listingRouter.js');
+const inventoryRouter = require('../../app/routes/inventoryRouter.js');
 
 // Use the imported routers
 app.use('/', indexRouter);
@@ -89,7 +95,4 @@ app.use((err, req, res, next) => {
     res.status(500).send('Server error!'); // Send server error response
 });
 
-// Start the server
-app.listen(PORT, () => {
-    console.log(`Server is running on http://localhost:${PORT}.`);
-});
+export const handler = serverless(app);
