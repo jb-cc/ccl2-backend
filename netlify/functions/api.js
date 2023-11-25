@@ -92,7 +92,7 @@ app.use('/inventory', inventoryRouter);
 // Middleware to handle errors
 app.use((err, req, res, next) => {
     console.error(err.stack); // Log error stack
-    res.status(500).send('Server error!'); // Send server error response
+    res.status(500).send('Server error! lol get rekt'); // Send server error response
 });
 
 export const handler = serverless(app);
