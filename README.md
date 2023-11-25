@@ -1,3 +1,8 @@
+# This is the dev branch, anything here can be broken, and is not guaranteed to work. For a stable version, please use the main branch.
+ 
+
+I am currently working on porting it all to a different backend service, so that the page can be live without having to run it locally and with the database of the university.
+
 # SKINFINITY CS:GO SkinMarketplace - Backend (CCL2)
 
 Skinfinity is a CS:GO Skin marketplace that allows users to buy and sell (not real) CS:GO Skins. It is a project for the
